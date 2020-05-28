@@ -91,25 +91,24 @@ void printTimePrefixed(char *prefix, struct timeval *tv) {
 const char *create = "create", *sort = "sort";
 
 int main(int argc, char **argv) {
-  if (argc != 3) {
-    printf("usage: %s {create|sort} path/to/million/int/file\n", argv[0]);
-  }
-
   gettimeofday(&start, &tz);
 
   int ret;
-  if (strncmp(argv[1], create, strlen(create))) {
-    ret = makeMillionIntegerFile(argv[1]);
-  } else {
+  if (argc == 3 && strncmp(argv[1], create, strlen(create)) == 0) {
+    ret = makeMillionIntegerFile(argv[2]);
     printTimePrefixed("started", &start);
     printTimePrefixed("created", &arrayCreated);
     printTimePrefixed("written", &arrayWritten);
     return ret+1;
-    ret = sortMillionIntegerFile(argv[1]);
+  } else if (argc == 3 && strncmp(argv[1], sort, strlen(sort)) == 0) {
+    ret = sortMillionIntegerFile(argv[2]);
     printTimePrefixed("started", &start);
     printTimePrefixed("   read", &arrayRead);
     printTimePrefixed(" sorted", &arraySorted);
     printTimePrefixed("written", &arrayWritten);
     return ret+3;
+  } else {
+    printf("usage: %s {create|sort} path/to/million/int/file\n", argv[0]);
+    return 1;
   }
 }
