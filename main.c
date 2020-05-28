@@ -80,7 +80,7 @@ int sortMillionIntegerFile(char *filepath) {
 void printTimePrefixed(char *prefix, struct timeval *tv) {
   char buff[100];
   strftime(buff, sizeof buff, "%Y-%m-%d %T", gmtime(&tv->tv_sec));
-  printf("%s: %s.%06d UTC\n", prefix, buff, tv->tv_usec);
+  printf("%s: %s.%06d\n", prefix, buff, tv->tv_usec);
 }
 
 const char *create = "create", *sort = "sort";
@@ -94,14 +94,14 @@ int main(int argc, char **argv) {
     printTimePrefixed("started", &start);
     printTimePrefixed("created", &arrayCreated);
     printTimePrefixed("written", &arrayWritten);
-    return ret+1;
+    return ret;
   } else if (argc == 3 && strncmp(argv[1], sort, strlen(sort)) == 0) {
     ret = sortMillionIntegerFile(argv[2]);
     printTimePrefixed("started", &start);
     printTimePrefixed("   read", &arrayRead);
     printTimePrefixed(" sorted", &arraySorted);
     printTimePrefixed("written", &arrayWritten);
-    return ret+3;
+    return ret;
   } else {
     printf("usage: %s {create|sort} path/to/million/int/file\n", argv[0]);
     return 1;
