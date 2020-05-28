@@ -84,6 +84,15 @@ void printTimePrefixed(char *prefix, struct timeval *tv) {
   printf("%s: %s.%06d\n", prefix, buff, tv->tv_usec);
 }
 
+void printTimePrefixedAndDelta(char *prefix, struct timeval *tv, struct timeval *prevTv) {
+  char buff[100];
+  strftime(buff, sizeof buff, "%Y-%m-%d %T", gmtime(&tv->tv_sec));
+  printf("%s: %s.%06d ", prefix, buff, tv->tv_usec);
+
+  int64_t delta = ((int64_t)tv->tv_sec * 1000000 + (int64_t)tv->tv_usec) - ((int64_t)prevTv->tv_sec * 1000000 + (int64_t)prevTv->tv_usec);
+  printf("delta: %6lldµs\n", delta);
+}
+
 const char *create = "create", *sort = "sort";
 
 int main(int argc, char **argv) {
@@ -93,15 +102,15 @@ int main(int argc, char **argv) {
   if (argc == 3 && strncmp(argv[1], create, strlen(create)) == 0) {
     ret = makeMillionIntegerFile(argv[2]);
     printTimePrefixed("started", &start);
-    printTimePrefixed("created", &arrayCreated);
-    printTimePrefixed("written", &arrayWritten);
+    printTimePrefixedAndDelta("created", &arrayCreated, &start);
+    printTimePrefixedAndDelta("written", &arrayWritten, &arrayCreated);
     return ret;
   } else if (argc == 3 && strncmp(argv[1], sort, strlen(sort)) == 0) {
     ret = sortMillionIntegerFile(argv[2]);
     printTimePrefixed("started", &start);
-    printTimePrefixed("   read", &arrayRead);
-    printTimePrefixed(" sorted", &arraySorted);
-    printTimePrefixed("written", &arrayWritten);
+    printTimePrefixedAndDelta("   read", &arrayRead, &start);
+    printTimePrefixedAndDelta(" sorted", &arraySorted, &arrayRead);
+    printTimePrefixedAndDelta("written", &arrayWritten, &arraySorted);
     return ret;
   } else {
     printf("usage: %s {create|sort} path/to/million/int/file\n", argv[0]);
