@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
@@ -18,7 +19,7 @@ int makeMillionIntegerFile(char *filepath) {
   }
   srand(time(NULL));
 
-  int millionInts[million];
+  int64_t millionInts[million];
   for (int i=0; i < million; i++) {
     millionInts[i] = rand();
   }
@@ -49,7 +50,7 @@ int compare_ints(const void* a, const void* b) {
 }
 
 int sortMillionIntegerFile(char *filepath) {
-  int millionInts[million];
+  int64_t millionInts[million];
   FILE *infile = fopen(filepath, "r");
   if (infile == NULL) {
     printf("error opening file at '%s': %d\n", filepath, errno);
