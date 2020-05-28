@@ -57,8 +57,23 @@ int sortMillionIntegerFile(char *filepath) {
   }
   fread(millionInts, sizeof millionInts[0], million, infile);
   gettimeofday(&arrayRead, NULL);
+
   qsort(millionInts, sizeof millionInts / sizeof millionInts[0], sizeof millionInts[0], compare_ints);
   gettimeofday(&arraySorted, NULL);
+
+  char outfilepath[strlen(filepath)+8+1];
+  snprintf(outfilepath, strlen(filepath)+8, "%s_sorted", filepath);
+  FILE *outfile = fopen(outfilepath, "w");
+  int numwritten = fwrite(millionInts, sizeof millionInts[0], million, outfile);
+  gettimeofday(&arrayWritten, NULL);
+  if (numwritten == million) {
+    return 0;
+  } else {
+    // does ferror indicate EOF? or will i need to try feof()?
+    printf("error writing ints, only wrote %d ints before error: %d\n", numwritten, ferror(outfile));
+    return 2;
+  }
+
   return 0;
 }
 
