@@ -5,41 +5,6 @@
 #include <sys/time.h>
 #include <time.h>
 
-void swap(int a[], int from, int to) {
-  int tmp = a[to];
-  a[to] = a[from];
-  a[from] = tmp;
-}
-
-void quicksort(int thelist[], int start, int end) {
-  // base case is array of 0 or 1 length
-  if(end - start <= 0) {
-    return;
-  }
-
-  int pivot = thelist[end]; // choose last element's value as pivot
-
-  // partition array, moving elements less than pivot to the left half, and greater elements to the right
-  int j = end;
-  for(int i = start; i < j;) {
-    if (thelist[i] > pivot) {
-      j--; // move swap-to position down the array
-      swap(thelist, i, j);
-    } else {
-      i++; // only move on if element is less-than-or-equal-to pivot
-    }
-  }
-
-  // move pivot into place, if necessary
-  if(thelist[j] > pivot) {
-    swap(thelist, end, j);
-  }
-
-  //recurse for left and right "halves"
-  quicksort(thelist, start, j-1);
-  quicksort(thelist, j+1, end);
-}
-
 struct timeval start, arrayCreated, arrayRead, arraySorted, arrayWritten;
 struct timezone tz;
 
@@ -70,6 +35,19 @@ int makeMillionIntegerFile(char *filepath) {
   }
 }
 
+int compare_ints(const void* a, const void* b) {
+  int first = *(const int*)a;
+  int second = *(const int*)b;
+
+  if (first < second) {
+    return -1;
+  } else if (second < first) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 int sortMillionIntegerFile(char *filepath) {
   int millionInts[million];
   FILE *infile = fopen(filepath, "w");
@@ -79,6 +57,8 @@ int sortMillionIntegerFile(char *filepath) {
   }
   fread(&millionInts, sizeof millionInts[0], million, infile);
   gettimeofday(&arrayRead, NULL);
+  qsort(millionInts, sizeof millionInts / sizeof millionInts[0], sizeof millionInts[0], compare_ints);
+  gettimeofday(&arraySorted, NULL);
   return 0;
 }
 
