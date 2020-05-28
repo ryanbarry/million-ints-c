@@ -24,7 +24,7 @@ int makeMillionIntegerFile(char *filepath) {
   }
   gettimeofday(&arrayCreated, NULL);
 
-  int numwritten = fwrite(&millionInts, sizeof millionInts[0], million, outfile);
+  int numwritten = fwrite(millionInts, sizeof millionInts[0], million, outfile);
   gettimeofday(&arrayWritten, NULL);
   if (numwritten == million) {
     return 0;
@@ -50,12 +50,12 @@ int compare_ints(const void* a, const void* b) {
 
 int sortMillionIntegerFile(char *filepath) {
   int millionInts[million];
-  FILE *infile = fopen(filepath, "w");
+  FILE *infile = fopen(filepath, "r");
   if (infile == NULL) {
     printf("error opening file at '%s': %d\n", filepath, errno);
     return 1;
   }
-  fread(&millionInts, sizeof millionInts[0], million, infile);
+  fread(millionInts, sizeof millionInts[0], million, infile);
   gettimeofday(&arrayRead, NULL);
   qsort(millionInts, sizeof millionInts / sizeof millionInts[0], sizeof millionInts[0], compare_ints);
   gettimeofday(&arraySorted, NULL);
