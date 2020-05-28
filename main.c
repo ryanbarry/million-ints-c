@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
 
 void swap(int a[], int from, int to) {
@@ -39,7 +40,8 @@ void quicksort(int thelist[], int start, int end) {
   quicksort(thelist, j+1, end);
 }
 
-struct timespec start, arrayCreated, arrayRead, arraySorted, arrayWritten;
+struct timeval start, arrayCreated, arrayRead, arraySorted, arrayWritten;
+struct timezone tz;
 
 const int million = 1000000;
 
@@ -55,10 +57,10 @@ int makeMillionIntegerFile(char *filepath) {
   for (int i=0; i < million; i++) {
     millionInts[i] = rand();
   }
-  timespec_get(&arrayCreated, TIME_UTC);
+  gettimeofday(&arrayCreated, NULL);
 
   int numwritten = fwrite(&millionInts, sizeof millionInts[0], million, outfile);
-  timespec_get(&arrayWritten, TIME_UTC);
+  gettimeofday(&arrayWritten, NULL);
   if (numwritten == million) {
     return 0;
   } else {
@@ -76,13 +78,13 @@ int sortMillionIntegerFile(char *filepath) {
     return 1;
   }
   fread(&millionInts, sizeof millionInts[0], million, infile);
-  timespec_get(&arrayRead, TIME_UTC);
+  gettimeofday(&arrayRead, NULL);
 }
 
-void printTimespecPrefixed(char *prefix, struct timespec *ts) {
+void printTimePrefixed(char *prefix, struct timeval *tv) {
   char buff[100];
-  strftime(buff, sizeof buff, "%Y-%m-%d %T", gmtime(&ts->tv_sec));
-  printf("%s: %s.%09ld UTC", prefix, buff, ts->tv_nsec);
+  strftime(buff, sizeof buff, "%Y-%m-%d %T", gmtime(&tv->tv_sec));
+  printf("%s: %s.%06d UTC", prefix, buff, tv->tv_usec);
 }
 
 const char *create = "create", *sort = "sort";
@@ -92,21 +94,21 @@ int main(int argc, char **argv) {
     printf("usage: %s {create|sort} path/to/million/int/file\n", argv[0]);
   }
 
-  timespec_get(&start, TIME_UTC);
+  gettimeofday(&start, &tz);
 
   int ret;
   if (strncmp(argv[1], create, strlen(create))) {
     ret = makeMillionIntegerFile(argv[1]);
-    printTimespecPrefixed("started", &start);
-    printTimespecPrefixed("created", &arrayCreated);
-    printTimespecPrefixed("written", &arrayWritten);
-    return ret;
   } else {
+    printTimePrefixed("started", &start);
+    printTimePrefixed("created", &arrayCreated);
+    printTimePrefixed("written", &arrayWritten);
+    return ret+1;
     ret = sortMillionIntegerFile(argv[1]);
-    printTimespecPrefixed("started", &start);
-    printTimespecPrefixed("   read", &arrayRead);
-    printTimespecPrefixed(" sorted", &arraySorted);
-    printTimespecPrefixed("written", &arrayWritten);
-    return ret;
+    printTimePrefixed("started", &start);
+    printTimePrefixed("   read", &arrayRead);
+    printTimePrefixed(" sorted", &arraySorted);
+    printTimePrefixed("written", &arrayWritten);
+    return ret+3;
   }
 }
