@@ -79,12 +79,13 @@ int sortMillionIntegerFile(char *filepath) {
   }
   fread(&millionInts, sizeof millionInts[0], million, infile);
   gettimeofday(&arrayRead, NULL);
+  return 0;
 }
 
 void printTimePrefixed(char *prefix, struct timeval *tv) {
   char buff[100];
   strftime(buff, sizeof buff, "%Y-%m-%d %T", gmtime(&tv->tv_sec));
-  printf("%s: %s.%06d UTC", prefix, buff, tv->tv_usec);
+  printf("%s: %s.%06d UTC\n", prefix, buff, tv->tv_usec);
 }
 
 const char *create = "create", *sort = "sort";
